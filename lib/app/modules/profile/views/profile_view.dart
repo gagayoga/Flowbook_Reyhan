@@ -160,6 +160,15 @@ class ProfileView extends GetView<ProfileController> {
                                           controller.teleponController,
                                           'Masukan telepom'
                                       ),
+
+                                      const SizedBox(
+                                        height: 5,
+                                      ),
+
+                                      kontenDataUser(
+                                          controller.passwordController,
+                                          'Masukan password'
+                                      ),
                                     ],
                                   ),
                                 ),

@@ -19,6 +19,7 @@ class HistorypeminjamanController extends GetxController with StateMixin{
   // Post Ulasan
   double ratingBuku= 0;
   final loadingUlasan = false.obs;
+  final loadingPinjam = false.obs;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController ulasanController = TextEditingController();
 
@@ -74,13 +75,13 @@ class HistorypeminjamanController extends GetxController with StateMixin{
   }
 
   // View Post Ulasan Buku
-  Future<void> kontenBeriUlasan(String idBuku, String NamaBuku) async{
+  Future<void> kontenBeriUlasan(String idBuku, String namaBuku) async{
     return showDialog<void>(
       context: Get.context!,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          titleTextStyle: GoogleFonts.inriaSans(
+          titleTextStyle: GoogleFonts.averiaGruesaLibre(
             fontWeight: FontWeight.w800,
             fontSize: 20.0,
             color: const Color(0xFF56526F),
@@ -88,7 +89,7 @@ class HistorypeminjamanController extends GetxController with StateMixin{
           backgroundColor: const Color(0xFFF5F5F5),
           title: Text(
             'Berikan Ulasan Buku',
-            style: GoogleFonts.inriaSans(
+            style: GoogleFonts.averiaGruesaLibre(
               fontWeight: FontWeight.w800,
               fontSize: 20.0,
               color: const Color(0xFF56526F),
@@ -180,7 +181,7 @@ class HistorypeminjamanController extends GetxController with StateMixin{
                       animationDuration: const Duration(milliseconds: 300),
                     ),
                     onPressed: (){
-                      postUlasanBuku(idBuku, NamaBuku);
+                      postUlasanBuku(idBuku, namaBuku);
                       Navigator.of(Get.context!).pop();
                     },
                     child: Text(
@@ -273,6 +274,190 @@ class HistorypeminjamanController extends GetxController with StateMixin{
         "OK",
       );
     }
+  }
+
+  updatePeminjaman(String peminjamanID, String asal) async {
+    loadingPinjam(true);
+    try {
+      FocusScope.of(Get.context!).unfocus();
+      var response;
+      if (asal == "booking") {
+        response = await ApiProvider.instance()
+            .patch('${Endpoint.updatePeminjaman}booking/$peminjamanID');
+      } else {
+        response = await ApiProvider.instance()
+            .patch('${Endpoint.updatePeminjaman}$peminjamanID');
+      }
+
+      if (response.statusCode == 200) {
+        if (asal == 'booking') {
+          _showMyDialog(
+                () {
+              Navigator.pop(Get.context!, 'OK');
+            },
+            "Berhasil",
+            "Peminjaman berhasil diperbarui",
+            "Oke",
+          );
+          getDataPeminjaman();
+        } else {
+          _showMyDialog(
+                () {
+              Navigator.pop(Get.context!, 'OK');
+            },
+            "Berhasil",
+            "Peminjaman buku berhasil dikembalikan",
+            "Oke",
+          );
+        }
+        getDataPeminjaman();
+      } else {
+        _showMyDialog(
+              () {
+            Navigator.pop(Get.context!, 'OK');
+          },
+          "Pemberitahuan",
+          "Buku gagal diupdate, silakan coba kembali",
+          "Ok",
+        );
+      }
+      loadingPinjam(false);
+    } on DioException catch (e) {
+      loadingPinjam(false);
+      if (e.response != null) {
+        if (e.response?.data != null) {}
+      } else {
+        _showMyDialog(
+              () {
+            Navigator.pop(Get.context!, 'OK');
+          },
+          "Pemberitahuan",
+          e.message ?? "",
+          "OK",
+        );
+      }
+    } catch (e) {
+      loadingPinjam(false);
+      _showMyDialog(
+            () {
+          Navigator.pop(Get.context!, 'OK');
+        },
+        "Error",
+        e.toString(),
+        "OK",
+      );
+    }
+  }
+
+  Future<void> showConfirmPeminjaman(String idPeminjaman, String asal) async {
+    return showDialog<void>(
+      context: Get.context!,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFFF5F5F5),
+          title: Text(
+            'Konfirmasi Peminjaman',
+            style: GoogleFonts.averiaGruesaLibre(
+              fontWeight: FontWeight.w800,
+              fontSize: 20.0,
+              color: const Color(0xFF56526F),
+            ),
+          ),
+
+          content: SingleChildScrollView(
+            child: SizedBox(
+              width: MediaQuery.of(Get.context!).size.width,
+              child: ListBody(
+                children: <Widget>[
+                  Text(
+                    "Apakah buku yang Anda pinjam, sudah Anda ambil di Perpustakaan?",
+                    style: GoogleFonts.averiaGruesaLibre(
+                        fontWeight: FontWeight.w800,
+                        color: Colors.black,
+                        fontSize: 26
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            SizedBox(
+              width: MediaQuery.of(Get.context!).size.width,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: SizedBox(
+                        width: MediaQuery.of(Get.context!).size.width,
+                        height: 45,
+                        child: TextButton(
+                          autofocus: true,
+                          style: TextButton.styleFrom(
+                            backgroundColor: const Color(0xFF1B1B1D),
+                            animationDuration: const Duration(milliseconds: 300),
+                          ),
+                          onPressed: (){
+                            Navigator.pop(Get.context!, 'OK');
+                          },
+                          child: Text(
+                            'Belum',
+                            style: GoogleFonts.averiaGruesaLibre(
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(
+                    width: 10,
+                  ),
+
+                  Flexible(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: SizedBox(
+                        width: MediaQuery.of(Get.context!).size.width,
+                        height: 45,
+                        child: TextButton(
+                          autofocus: true,
+                          style: TextButton.styleFrom(
+                            backgroundColor: const Color(0xFF008A93),
+                            animationDuration: const Duration(milliseconds: 300),
+                          ),
+                          onPressed: (){
+                            Navigator.pop(Get.context!, 'OK');
+                            updatePeminjaman(idPeminjaman, asal);
+                          },
+                          child: Text(
+                            "Sudah",
+                            style: GoogleFonts.averiaGruesaLibre(
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _showMyDialog(final onPressed, String judul, String deskripsi, String nameButton) async {

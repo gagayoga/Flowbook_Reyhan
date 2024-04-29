@@ -168,11 +168,17 @@ class HistorypeminjamanView extends GetView<HistorypeminjamanController> {
                   padding: const EdgeInsets.only(bottom: 10),
                   child: InkWell(
                     onTap: () {
-                      dataHistory.status == 'Selesai' ? controller.kontenBeriUlasan(dataHistory.bukuId.toString(), dataHistory.judulBuku.toString()) :
-                      Get.toNamed(Routes.BUKTIPEMINJAMAN, parameters: {
-                        'idPeminjaman': dataHistory.peminjamanID.toString(),
-                        'asalHalaman' : 'historyPeminjaman',
-                      });
+                      if(dataHistory.status == 'Booking'){
+                        controller.showConfirmPeminjaman(dataHistory.peminjamanID.toString(), 'booking');
+                      }
+                      else if(dataHistory.status == 'Dipinjam'){
+                        Get.toNamed(Routes.BUKTIPEMINJAMAN, parameters: {
+                          'idPeminjaman': dataHistory.peminjamanID.toString(),
+                          'asalHalaman' : 'historyPeminjaman',
+                        });
+                      }else if(dataHistory.status == "Selesai"){
+                        controller.kontenBeriUlasan(dataHistory.bukuId.toString(), dataHistory.judulBuku.toString());
+                      }
                     },
                     child: SizedBox(
                       width: width,

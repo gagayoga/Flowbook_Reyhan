@@ -240,10 +240,10 @@ class BuktipeminjamanView extends GetView<BuktipeminjamanController> {
 
                   kontenButton(
                           (){
-
+                            controller.updatePeminjaman(dataPeminjaman.peminjamanID.toString(), 'dipinjam');
                       },
                       Text(
-                        'Screenshot Bukti Peminjaman',
+                        'Kembalikan Buku',
                         style: GoogleFonts.averiaGruesaLibre(
                             fontSize: 18,
                             fontWeight: FontWeight.w800,

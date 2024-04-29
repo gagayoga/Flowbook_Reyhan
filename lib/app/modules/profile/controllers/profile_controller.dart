@@ -22,6 +22,7 @@ class ProfileController extends GetxController with StateMixin{
   final TextEditingController teleponController = TextEditingController();
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController namalengkapController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   void onInit() {
@@ -58,6 +59,7 @@ class ProfileController extends GetxController with StateMixin{
           teleponController.text = detailProfile.value!.telepon.toString();
           usernameController.text = detailProfile.value!.username.toString();
           namalengkapController.text = detailProfile.value!.namaLengkap.toString();
+          passwordController.text = detailProfile.value!.password.toString();
           change(null, status: RxStatus.success());
         }
       } else {
@@ -159,6 +161,7 @@ class ProfileController extends GetxController with StateMixin{
               "NamaLengkap" : namalengkapController.text.toString(),
               "Email" : emailController.text.toString(),
               "NoTelepon" : teleponController.text.toString(),
+              "Password" : passwordController.text.toString(),
             }
         );
         if (response.statusCode == 201) {
